@@ -4,6 +4,8 @@
 	import DimensionInput from '$lib/components/DimensionInput.svelte';
 	import OptionInput from '$lib/components/OptionInput.svelte';
 	import Results from '$lib/components/Results.svelte';
+	import Seo from '$lib/components/SEO.svelte';
+	import { onMount } from 'svelte';
 
 	const dimensions = writable<Dimension[]>([]);
 	const newDimension = writable<NewDimension>({
@@ -63,7 +65,23 @@
 	function prevStep() {
 		step--;
 	}
+	onMount(() => {
+		const script = document.createElement('script');
+		script.type = 'application/ld+json';
+		script.text = JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'WebApplication',
+			name: 'Decision Maker',
+			description:
+				'A powerful decision-making tool to help you make the best choices by comparing options across multiple dimensions.',
+			applicationCategory: 'Productivity',
+			operatingSystem: 'Web'
+		});
+		document.head.appendChild(script);
+	});
 </script>
+
+<Seo />
 
 <main class="container">
 	<h1>Decision Maker</h1>

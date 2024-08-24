@@ -73,7 +73,7 @@
 
 	.dimension-name {
 		font-weight: bold;
-    word-wrap: break-word;
+		word-wrap: break-word;
 	}
 
 	.input-group {

@@ -89,7 +89,7 @@
 	.option-name {
 		margin-top: 0;
 		color: var(--primary-color);
-    word-wrap: break-word;
+		word-wrap: break-word;
 	}
 
 	.rating-list {
