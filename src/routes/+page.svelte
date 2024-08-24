@@ -1,59 +1,108 @@
-<script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
+	import { writable, derived } from 'svelte/store';
+	import type { Dimension, NewDimension, Option } from '$lib/types';
+	import DimensionInput from '$lib/components/DimensionInput.svelte';
+	import OptionInput from '$lib/components/OptionInput.svelte';
+	import Results from '$lib/components/Results.svelte';
+
+	const dimensions = writable<Dimension[]>([]);
+	const newDimension = writable<NewDimension>({
+		name: ''
+	});
+	const options = writable<Option[]>([]);
+	const newOption = writable<Option>({
+		name: '',
+		ratings: []
+	});
+
+	$: normalizedWeights = derived(dimensions, ($dimensions) => {
+		const total = $dimensions.reduce((sum, dim) => sum + dim.importance, 0);
+		return $dimensions.map((dim) => dim.importance / total);
+	});
+
+	$: results = derived([options, normalizedWeights], ([$options, $weights]) => {
+		return $options.map((option) => ({
+			optionName: option.name,
+			score: option.ratings.reduce((sum, rating, index) => sum + rating * $weights[index], 0)
+		}));
+	});
+
+	let step = 1;
+
+	function nextStep() {
+		let shouldProceed = true;
+		if (step === 1) {
+			if ($newDimension.name !== '') {
+				shouldProceed = confirm(
+					'You have unsaved dimensions.\nClick OK if you would like to proceed anyway, or Cancel if you want to add your unadded dimension.'
+				);
+			}
+			if ($dimensions.length === 0) {
+				shouldProceed = false;
+				alert('You must enter a dimension to proceed');
+			}
+		}
+		if (step === 2) {
+			if ($newOption.name !== '') {
+				shouldProceed = confirm(
+					'You have an unsaved option.\nClick OK if you would like to proceed anyway, or Cancel if you want to add your unsaved options.'
+				);
+			}
+
+			if ($options.length === 0) {
+				shouldProceed = false;
+				alert('You must enter a dimension to proceed');
+			}
+		}
+		if (!shouldProceed) {
+			return;
+		}
+		step++;
+	}
+
+	function prevStep() {
+		step--;
+	}
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
+<main class="container">
+	<h1>Decision Maker</h1>
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
+	<div class="step-container">
+		{#if step === 1}
+			<DimensionInput {dimensions} {newDimension} />
+			<div class="right-hand-next-button">
+				<button on:click={nextStep}>Next</button>
+			</div>
+		{:else if step === 2}
+			<OptionInput dimensions={$dimensions} {options} {newOption} />
+			<div class="button-group">
+				<button on:click={prevStep}>Back</button>
+				<button on:click={nextStep}>Next</button>
+			</div>
+		{:else}
+			<Results results={$results} />
+			<button on:click={prevStep}>Back</button>
+		{/if}
+	</div>
+</main>
 
 <style>
-	section {
+	.step-container {
+		background-color: white;
+		border-radius: 8px;
+		padding: 20px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.button-group {
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
+		justify-content: space-between;
+		margin-top: 20px;
 	}
 
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	.right-hand-next-button {
+		display: flex;
+		flex-direction: row-reverse;
 	}
 </style>
