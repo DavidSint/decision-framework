@@ -41,9 +41,15 @@
 	</ul>
 
 	<div class="input-group">
-		<input bind:value={$newDimension.name} placeholder="Dimension name" />
-		<input type="number" bind:value={$newDimension.importance} placeholder="Importance" min="0" />
-		<button on:click={addDimension}>Add Dimension</button>
+		<div>
+			<input bind:value={$newDimension.name} placeholder="Dimension name" />
+		</div>
+		<div class="dimension-importance-input">
+			<input type="number" bind:value={$newDimension.importance} placeholder="Importance" min="0" />
+		</div>
+		<div class="dimension-option-button">
+			<button on:click={addDimension}>Add Dimension</button>
+		</div>
 	</div>
 </div>
 
@@ -67,15 +73,26 @@
 
 	.dimension-name {
 		font-weight: bold;
+    word-wrap: break-word;
 	}
 
 	.input-group {
 		display: flex;
-		gap: 10px;
-		overflow-x: scroll;
+		flex-direction: column;
 	}
 
 	.input-group input {
 		flex: 1;
+		min-width: 120px;
+		field-sizing: content;
+		max-width: 82vw;
+	}
+
+	.dimension-importance-input {
+		margin-left: 30px;
+	}
+
+	.dimension-option-button {
+		display: inline-block;
 	}
 </style>

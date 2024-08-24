@@ -89,6 +89,7 @@
 	.option-name {
 		margin-top: 0;
 		color: var(--primary-color);
+    word-wrap: break-word;
 	}
 
 	.rating-list {
@@ -110,6 +111,8 @@
 	.input-group input {
 		flex: 1;
 		min-width: 120px;
+		field-sizing: content;
+		max-width: 82vw;
 	}
 
 	.option-rating-input {
