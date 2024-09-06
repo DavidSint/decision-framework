@@ -1,13 +1,15 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 	import type { Dimension, Option } from '$lib/types';
+	import Delete from './Delete.svelte';
+	import { getContext } from 'svelte';
 
-	export let dimensions: Dimension[];
-	export let options: Writable<Option[]>;
+	const dimensions: Writable<Dimension[]> = getContext('dimensions');
+	const options: Writable<Option[]> = getContext('options');
 	export let newOption: Writable<Option>;
 
 	function addOption() {
-		if ($newOption.name && $newOption.ratings.length === dimensions.length) {
+		if ($newOption.name && $newOption.ratings.length === $dimensions.length) {
 			options.update((opts) => [
 				...opts,
 				{
@@ -35,13 +37,16 @@
 		{#if $options.length > 0}
 			<h3>Chosen Options</h3>
 		{/if}
-		{#each $options as option}
+		{#each $options as option, optIndex}
 			<li class="option-item">
-				<h4 class="option-name">{option.name}</h4>
+				<div class="option-title-row">
+					<h4 class="option-name">{option.name}</h4>
+					<Delete index={optIndex} type="option"></Delete>
+				</div>
 				<ul class="rating-list">
-					{#each option.ratings as rating, index}
+					{#each option.ratings as rating, ratingIndex}
 						<li class="rating-item">
-							<span class="dimension-name">{dimensions[index].name}:</span>
+							<span class="dimension-name">{$dimensions[ratingIndex].name}:</span>
 							<span class="rating-value">{rating}</span>
 						</li>
 					{/each}
@@ -54,7 +59,7 @@
 		<div>
 			<input bind:value={$newOption.name} placeholder="Option name" />
 		</div>
-		{#each dimensions as dimension, index}
+		{#each $dimensions as dimension, index}
 			<div class="option-rating-input">
 				<input
 					type="number"
@@ -86,8 +91,16 @@
 		margin-bottom: 10px;
 	}
 
+	.option-title-row {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: var(--primary-color) 1px solid;
+	}
+
 	.option-name {
-		margin-top: 0;
+		margin: 0;
 		color: var(--primary-color);
 		word-wrap: break-word;
 	}

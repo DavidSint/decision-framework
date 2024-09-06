@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 	import type { Dimension, NewDimension } from '$lib/types';
+	import { getContext } from 'svelte';
+	import Delete from './Delete.svelte';
 
-	export let dimensions: Writable<Dimension[]>;
+	const dimensions: Writable<Dimension[]> = getContext('dimensions');
 	export let newDimension: Writable<NewDimension>;
 
 	function addDimension() {
@@ -32,10 +34,11 @@
 		{#if $dimensions.length > 0}
 			<h3>Chosen Dimensions</h3>
 		{/if}
-		{#each $dimensions as dimension}
+		{#each $dimensions as dimension, index}
 			<li class="dimension-item">
 				<span class="dimension-name">{dimension.name}</span>
 				<span class="dimension-importance">Importance: {dimension.importance}</span>
+				<Delete {index} type="dimension"></Delete>
 			</li>
 		{/each}
 	</ul>

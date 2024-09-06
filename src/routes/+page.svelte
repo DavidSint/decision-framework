@@ -5,7 +5,7 @@
 	import OptionInput from '$lib/components/OptionInput.svelte';
 	import Results from '$lib/components/Results.svelte';
 	import Seo from '$lib/components/SEO.svelte';
-	import { onMount } from 'svelte';
+	import { setContext, onMount } from 'svelte';
 
 	const dimensions = writable<Dimension[]>([]);
 	const newDimension = writable<NewDimension>({
@@ -16,16 +16,25 @@
 		name: '',
 		ratings: []
 	});
+	setContext('dimensions', dimensions);
+	setContext('options', options);
 
-	$: normalizedWeights = derived(dimensions, ($dimensions) => {
+	$: normalizedDimensionImportances = derived(dimensions, ($dimensions) => {
 		const total = $dimensions.reduce((sum, dim) => sum + dim.importance, 0);
 		return $dimensions.map((dim) => dim.importance / total);
 	});
 
-	$: results = derived([options, normalizedWeights], ([$options, $weights]) => {
+	$: results = derived([options, normalizedDimensionImportances], ([$options, $normalizedImportance]) => {
+		const dimensionScoreWeights = $normalizedImportance.map((_, importanceIndex) => {
+			return $options.reduce((sum, opt) => sum + opt.ratings[importanceIndex], 0);
+		});
+
 		return $options.map((option) => ({
 			optionName: option.name,
-			score: option.ratings.reduce((sum, rating, index) => sum + rating * $weights[index], 0)
+			score: option.ratings.reduce(
+				(sum, rating, index) => sum + (rating / dimensionScoreWeights[index]) * $normalizedImportance[index],
+				0
+			)
 		}));
 	});
 
@@ -88,12 +97,12 @@
 
 	<div class="step-container">
 		{#if step === 1}
-			<DimensionInput {dimensions} {newDimension} />
+			<DimensionInput {newDimension} />
 			<div class="right-hand-next-button">
 				<button on:click={nextStep}>Next</button>
 			</div>
 		{:else if step === 2}
-			<OptionInput dimensions={$dimensions} {options} {newOption} />
+			<OptionInput {newOption} />
 			<div class="button-group">
 				<button on:click={prevStep}>Back</button>
 				<button on:click={nextStep}>Next</button>
