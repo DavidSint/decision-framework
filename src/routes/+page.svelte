@@ -5,6 +5,7 @@
 	import OptionInput from '$lib/components/OptionInput.svelte';
 	import Results from '$lib/components/Results.svelte';
 	import { setContext, onMount } from 'svelte';
+	import { normalizeDimensionImportances, resultsCalc } from '$lib/utils';
 
 	const dimensions = writable<Dimension[]>([]);
 	const newDimension = writable<NewDimension>({
@@ -19,25 +20,13 @@
 	setContext('options', options);
 
 	$: normalizedDimensionImportances = derived(dimensions, ($dimensions) => {
-		const total = $dimensions.reduce((sum, dim) => sum + dim.importance, 0);
-		return $dimensions.map((dim) => dim.importance / total);
+		return normalizeDimensionImportances($dimensions);
 	});
 
 	$: results = derived(
 		[options, normalizedDimensionImportances],
-		([$options, $normalizedImportance]) => {
-			const dimensionScoreWeights = $normalizedImportance.map((_, importanceIndex) => {
-				return $options.reduce((sum, opt) => sum + opt.ratings[importanceIndex], 0);
-			});
-
-			return $options.map((option) => ({
-				optionName: option.name,
-				score: option.ratings.reduce(
-					(sum, rating, index) =>
-						sum + (rating / dimensionScoreWeights[index]) * $normalizedImportance[index],
-					0
-				)
-			}));
+		([$options, $normalizedImportances]) => {
+			return resultsCalc($options, $normalizedImportances);
 		}
 	);
 
