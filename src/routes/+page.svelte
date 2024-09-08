@@ -4,7 +4,6 @@
 	import DimensionInput from '$lib/components/DimensionInput.svelte';
 	import OptionInput from '$lib/components/OptionInput.svelte';
 	import Results from '$lib/components/Results.svelte';
-	import Seo from '$lib/components/SEO.svelte';
 	import { setContext, onMount } from 'svelte';
 
 	const dimensions = writable<Dimension[]>([]);
@@ -24,19 +23,23 @@
 		return $dimensions.map((dim) => dim.importance / total);
 	});
 
-	$: results = derived([options, normalizedDimensionImportances], ([$options, $normalizedImportance]) => {
-		const dimensionScoreWeights = $normalizedImportance.map((_, importanceIndex) => {
-			return $options.reduce((sum, opt) => sum + opt.ratings[importanceIndex], 0);
-		});
+	$: results = derived(
+		[options, normalizedDimensionImportances],
+		([$options, $normalizedImportance]) => {
+			const dimensionScoreWeights = $normalizedImportance.map((_, importanceIndex) => {
+				return $options.reduce((sum, opt) => sum + opt.ratings[importanceIndex], 0);
+			});
 
-		return $options.map((option) => ({
-			optionName: option.name,
-			score: option.ratings.reduce(
-				(sum, rating, index) => sum + (rating / dimensionScoreWeights[index]) * $normalizedImportance[index],
-				0
-			)
-		}));
-	});
+			return $options.map((option) => ({
+				optionName: option.name,
+				score: option.ratings.reduce(
+					(sum, rating, index) =>
+						sum + (rating / dimensionScoreWeights[index]) * $normalizedImportance[index],
+					0
+				)
+			}));
+		}
+	);
 
 	let step = 1;
 
@@ -62,7 +65,7 @@
 
 			if ($options.length === 0) {
 				shouldProceed = false;
-				alert('You must enter a dimension to proceed');
+				alert('You must enter an option to proceed');
 			}
 		}
 		if (!shouldProceed) {
@@ -90,8 +93,6 @@
 	});
 </script>
 
-<Seo />
-
 <main class="container">
 	<h1>Decision Maker</h1>
 
@@ -99,17 +100,17 @@
 		{#if step === 1}
 			<DimensionInput {newDimension} />
 			<div class="right-hand-next-button">
-				<button on:click={nextStep}>Next</button>
+				<button on:click={nextStep} data-testid="dimension-next-button">Next</button>
 			</div>
 		{:else if step === 2}
 			<OptionInput {newOption} />
 			<div class="button-group">
-				<button on:click={prevStep}>Back</button>
-				<button on:click={nextStep}>Next</button>
+				<button on:click={prevStep} data-testid="option-back-button">Back</button>
+				<button on:click={nextStep} data-testid="option-next-button">Next</button>
 			</div>
 		{:else}
 			<Results results={$results} />
-			<button on:click={prevStep}>Back</button>
+			<button on:click={prevStep} data-testid="result-back-button">Back</button>
 		{/if}
 	</div>
 </main>

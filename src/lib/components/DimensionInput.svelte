@@ -22,8 +22,8 @@
 	}
 </script>
 
-<div class="dimension-input">
-	<h2>Enter Dimensions</h2>
+<section class="dimension-input">
+	<h2 data-testid="dimensions-title">Enter Dimensions</h2>
 	<p>
 		We will later define some options, but before we do that, let's define the dimensions that we
 		will rate the options on. For example, if you are comparing car options, some dimensions may be
@@ -45,16 +45,26 @@
 
 	<div class="input-group">
 		<div>
-			<input bind:value={$newDimension.name} placeholder="Dimension name" />
+			<input
+				bind:value={$newDimension.name}
+				placeholder="Dimension name"
+				data-testid="dimension-name-input"
+			/>
 		</div>
 		<div class="dimension-importance-input">
-			<input type="number" bind:value={$newDimension.importance} placeholder="Importance" min="0" />
+			<input
+				type="number"
+				bind:value={$newDimension.importance}
+				placeholder="Importance"
+				min="0"
+				data-testid="dimension-importance-input"
+			/>
 		</div>
 		<div class="dimension-option-button">
-			<button on:click={addDimension}>Add Dimension</button>
+			<button on:click={addDimension} data-testid="dimension-add-button">Add Dimension</button>
 		</div>
 	</div>
-</div>
+</section>
 
 <style>
 	.dimension-input {

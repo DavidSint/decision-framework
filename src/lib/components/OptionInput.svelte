@@ -23,8 +23,8 @@
 	}
 </script>
 
-<div class="option-input">
-	<h2>Enter Options</h2>
+<section class="option-input">
+	<h2 data-testid="options-title">Enter Options</h2>
 	<p>
 		Now is when we add the options, and we can now score the options against each of our previously
 		chosen dimensions.
@@ -57,7 +57,11 @@
 
 	<div class="input-group">
 		<div>
-			<input bind:value={$newOption.name} placeholder="Option name" />
+			<input
+				bind:value={$newOption.name}
+				placeholder="Option name"
+				data-testid="option-name-input"
+			/>
 		</div>
 		{#each $dimensions as dimension, index}
 			<div class="option-rating-input">
@@ -66,14 +70,15 @@
 					bind:value={$newOption.ratings[index]}
 					placeholder="Rating for {dimension.name}"
 					min="0"
+					data-testid={`option-rating-i${index}-input`}
 				/>
 			</div>
 		{/each}
 		<div class="add-option-button">
-			<button on:click={addOption}>Add Option</button>
+			<button on:click={addOption} data-testid="option-add-button">Add Option</button>
 		</div>
 	</div>
-</div>
+</section>
 
 <style>
 	.option-input {

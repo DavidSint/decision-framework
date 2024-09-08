@@ -7,14 +7,16 @@
 	$: winner = sortedResults[0];
 </script>
 
-<div class="results">
-	<h2>Results</h2>
+<section class="results">
+	<h2 data-testid="results-title">Results</h2>
 	<ul class="result-list">
 		{#each sortedResults as result, index}
 			<li class="result-item" style="--score: {result.score / winner.score}">
 				<span class="rank">#{index + 1}</span>
 				<span class="option-name">{result.optionName}</span>
-				<span class="score">{result.score.toFixed(2)}</span>
+				<span class="score" data-testid={`${result.optionName}-score-text`}
+					>{(result.score * 100).toFixed(2)}</span
+				>
 				<div class="score-bar"></div>
 			</li>
 		{/each}
@@ -23,10 +25,12 @@
 	{#if winner}
 		<div class="winner">
 			<h3>The winner is:</h3>
-			<p>{winner.optionName} with a score of {winner.score.toFixed(2)}</p>
+			<p data-testid="winner-text">
+				{winner.optionName} with a score of {(winner.score * 100).toFixed(2)}
+			</p>
 		</div>
 	{/if}
-</div>
+</section>
 
 <style>
 	.results {

@@ -32,7 +32,11 @@
 	}
 </script>
 
-<button class="delete-button" on:click={() => removeInput(index, type)}>Remove</button>
+<button
+	class="delete-button"
+	on:click={() => removeInput(index, type)}
+	data-testid={`remove-i${index}-${type}`}>Remove</button
+>
 
 <style>
 	.delete-button {
